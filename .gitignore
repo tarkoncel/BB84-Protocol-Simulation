@@ -1,0 +1,19 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environments
+venv/
+env/
+bb84env/
+
+# Qiskit cache
+qiskit/
+qiskit_aer/
+.cache/
+.ipynb_checkpoints/
+
+# IDE files
+.vscode/
+.idea/
+
