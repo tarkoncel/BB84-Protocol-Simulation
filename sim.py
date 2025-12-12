@@ -1,80 +1,79 @@
-import numpy as np
 from qiskit import QuantumCircuit
 from qiskit_aer import AerSimulator
+import numpy as np
 
+def bb84_qiskit(n=1000, attack=False):
+    backend = AerSimulator()
 
-def generate_random_bits(n):
-    return np.random.randint(2, size=n)
+    # 1) Ahmet rastgele bit ve baz seçimi
+    ahmet_bits = np.random.randint(0, 2, n)
+    ahmet_bases = np.random.randint(0, 2, n)
+    mehmet_bases = np.random.randint(0, 2, n)
 
-def generate_random_bases(n):
-    return np.random.randint(2, size=n)  # 0 = Z, 1 = X
+    if attack:
+        arda_bases = np.random.randint(0, 2, n)
+    else:
+        arda_bases = None
 
-def prepare_qubit(bit, basis):
-    qc = QuantumCircuit(1, 1)
-    if bit == 1:
-        qc.x(0)
-    if basis == 1:
-        qc.h(0)
-    return qc
-
-def measure_qubit(qc, basis):
-    if basis == 1:
-        qc.h(0)
-    qc.measure(0, 0)
-    simulator = AerSimulator()
-    result = simulator.run(qc).result()
-    counts = result.get_counts()
-    measured_bit = int(max(counts, key=counts.get))
-    return measured_bit
-
-def bb84_protocol(n=20, attack=False):
-    ahmet_bits = generate_random_bits(n)
-    ahmet_bases = generate_random_bases(n)
-    mehmet_bases = generate_random_bases(n)
-
-    raw_key_ahmet = []
-    raw_key_mehmet = []
+    # ---- AHMED QUBIT HAZIRLAMA DEVRESİ ----
+    qc = QuantumCircuit(n, n)
 
     for i in range(n):
-        bit = ahmet_bits[i]
-        basis = ahmet_bases[i]
+        if ahmet_bits[i] == 1:
+            qc.x(i)
+        if ahmet_bases[i] == 1:  # X bazı
+            qc.h(i)
 
-        qc = prepare_qubit(bit, basis)
+    # ---- ARDA SALDIRI MODU ----
+    if attack:
+        for i in range(n):
+            if arda_bases[i] == 1:
+                qc.h(i)
 
-        if attack:
-            arda_basis = np.random.randint(2)
-            measure_qubit(qc, arda_basis)
+            qc.measure(i, i)
+            qc.reset(i)
 
-        mbit = measure_qubit(qc, mehmet_bases[i])
+            if arda_bases[i] == 1:
+                qc.h(i)
+            if ahmet_bits[i] == 1:
+                qc.x(i)
 
-        raw_key_ahmet.append(bit)
-        raw_key_mehmet.append(mbit)
+    # ---- MEHMET ÖLÇÜM MODU ----
+    for i in range(n):
+        if mehmet_bases[i] == 1:
+            qc.h(i)
+        qc.measure(i, i)
 
-    sift_ahmet = []
-    sift_mehmet = []
+    # ---- DEVRE ÇALIŞTIRMA ----
+    job = backend.run(qc, shots=1)
+    result = job.result().get_counts()
 
-    for a, b, bit_a, bit_m in zip(ahmet_bases, mehmet_bases, raw_key_ahmet, raw_key_mehmet):
-        if a == b:
-            sift_ahmet.append(bit_a)
-            sift_mehmet.append(bit_m)
+    measured = list(result.keys())[0]     # Qiskit sonucu string döndürür
+    measured = measured[::-1]             # Bit sırası ters gelir → düzelt
+    mehmet_bits = np.array([int(b) for b in measured])
 
-    sift_ahmet = np.array(sift_ahmet)
-    sift_mehmet = np.array(sift_mehmet)
+    # ---- SİFTED KEY ----
+    sift_mask = (ahmet_bases == mehmet_bases)
 
-    qber = np.mean(sift_ahmet != sift_mehmet) if len(sift_ahmet)>0 else 0
+    sift_a = ahmet_bits[sift_mask]
+    sift_m = mehmet_bits[sift_mask]
 
-    return sift_ahmet, sift_mehmet, qber
+    if len(sift_a) > 0:
+        qber = np.mean(sift_a != sift_m)
+    else:
+        qber = None
+
+    return sift_a, sift_m, qber
 
 
-print("---- Arda saldırmıyor ----")
-key_a, key_m, qber_clean = bb84_protocol(n=50, attack=False)
-print("Ahmet:", key_a)
-print("Mehmet:", key_m)
-print("QBER:", qber_clean)
+if __name__ == "__main__":
+    print("---- SALDIRI YOK ----")
+    a, m, q = bb84_qiskit(n=1000, attack=False)
+    print("Sifted Key Length:", len(a))
+    print("QBER:", q)
 
-print("\n---- Arda saldırıyor ----")
-key_a2, key_m2, qber_attack = bb84_protocol(n=50, attack=True)
-print("Ahmet:", key_a2)
-print("Mehmet:", key_m2)
-print("QBER:", qber_attack)
+    print("\n---- ARDA SALDIRIYOR ----")
+    a2, m2, q2 = bb84_qiskit(n=1000, attack=True)
+    print("Sifted Key Length:", len(a2))
+    print("QBER:", q2)
 
