@@ -139,6 +139,15 @@ Simülasyon aşağıdaki kuantum fiziği prensiplerine dayanmaktadır:
 Bu nedenle saldırganın her müdahalesi ölçüm istatistiklerine yansır.
 
 ---
+## License
+
+This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)**.
+
+Copyright (C) 2025 Tarık Öncel
+
+You may redistribute and/or modify this project under the terms of the GPL-3.0.
+See the `LICENSE` file for details.
+
 
 ## 📘 Kaynakça
 
