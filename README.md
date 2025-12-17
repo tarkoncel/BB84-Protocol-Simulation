@@ -1,165 +1,147 @@
-# BB84 Kuantum Anahtar Dağıtım Protokolü Simülasyonu
+# BB84 Kuantum Anahtar Dağıtım Protokolü (BB84) Simülasyonu
 
-Bu depo, BB84 kuantum anahtar dağıtım (QKD) protokolünün Python
-kullanılarak simüle edilmiş hâlini içerir.\
-Çalışma, Ahmet (gönderici), Mehmet (alıcı) ve Arda (saldırgan)
-karakterleri üzerinden temel kuantum kriptografi prensiplerini
-modellemektedir.
+Bu depo, BB84 kuantum anahtar dağıtım (QKD) protokolünün **Python 3.11** kullanılarak simüle edilmiş hâlini içerir.
+Çalışma; Ahmet (gönderici), Mehmet (alıcı) ve Arda (saldırgan) karakterleri üzerinden temel kuantum kriptografi prensiplerini modellemektedir.
 
-Simülasyon, kuantum ölçümünün bozucu doğasını, baz eşleşmesi
-mekanizmasını ve saldırı durumunda hata oranının (QBER) nasıl arttığını
-göstermeyi amaçlar.
-
-------------------------------------------------------------------------
-
-## 📌 Projenin Amacı
-
-Bu simülasyonun amacı, BB84 protokolünün pratik olarak nasıl
-çalıştığını;\
-- **Rastgele bit ve baz seçimi**,\
-- **Qubit hazırlama**,\
-- **Ölçüm süreci**,\
-- **Arda'nın müdahale ettiği saldırı senaryosu**,\
-- **QBER hesaplaması**,\
-gibi adımlar üzerinden görünür hâle getirmektir.
-
-Bu çalışma özellikle kuantum kriptografi, kuantum bilişim ve siber
-güvenlik alanlarına başlangıç yapmak isteyen araştırmacılar ve
-öğrenciler için örnek bir temel oluşturur.
-
-------------------------------------------------------------------------
-
-## 📁 Proje Yapısı
-
-    BB84-Protocol-Simulation/
-    │
-    ├── sim.py                # Simülasyon kodu (en güncel)
-    ├── README.md             # Bu belge
-    └── (isteğe bağlı ek dosyalar)
-
-------------------------------------------------------------------------
-
-## 🧪 Simülasyonun İçeriği
-
-Simülasyon iki temel senaryo içerir:
-
-### 1) **Saldırı Yok**
-
--   Ahmet ve Mehmet rastgele bazlarla çalışır.
--   Baz eşleşmesi olduğunda sifted key oluşur.
--   QBER ≈ 0 çıkar.
-
-### 2) **Arda Saldırıyor**
-
--   Arda qubitleri rastgele bazda ölçüp yeniden yollar.
--   Heisenberg Belirsizlik İlkesi ve No-Cloning Teoremi gereği qubitler
-    bozulur.
--   QBER ≈ %30--%40 civarında artar.
--   Bu, saldırının başarılı şekilde tespit edildiğini gösterir.
-
-------------------------------------------------------------------------
-# 🔧 1. GEREKSİNİMLER
-
-- Python **3.10 – 3.11** *(Qiskit ile en uyumlu sürüm aralığı)*
-- pip paket yöneticisi
-- Git (opsiyonel, repo klonlamak için)
+Simülasyonun amacı, kuantum ölçümünün bozucu doğasını, baz eşleşmesi mekanizmasını ve araya giren bir saldırgan durumunda kuantum bit hata oranının (QBER) nasıl yükseldiğini açık biçimde göstermektir.
 
 ---
 
-# 🐧 2. Kurulum — **Linux (Fedora, Ubuntu, Arch, Debian vb.)**
+## 📌 Projenin Amacı
 
-### 1) Python sürümünü kontrol et
+Bu simülasyonun temel amacı, BB84 protokolünün pratik işleyişini aşağıdaki adımlar üzerinden görünür hâle getirmektir:
+
+- Rastgele bit ve baz seçimi  
+- Qubitlerin Z ve X bazlarında hazırlanması  
+- Kuantum kanalında iletim ve ölçüm süreci  
+- Araya giren saldırgan (Intercept–Resend) senaryosu  
+- QBER (Quantum Bit Error Rate) hesaplaması
+
+Bu çalışma, kuantum kriptografi ve kuantum bilişim alanına giriş yapmak isteyen öğrenciler ve araştırmacılar için eğitsel bir örnek sunmayı hedeflemektedir.
+
+---
+
+## 📁 Proje Yapısı
+
+```text
+BB84-Protocol-Simulation/
+│
+├── sim.py              # BB84 protokolü simülasyon kodu
+├── requirements.txt    # Gerekli Python paketleri
+└── README.md           # Bu belge
+```
+
+---
+
+## ⚙️ Gereksinimler
+
+Bu projeyi çalıştırabilmek için sisteminizde aşağıdaki yazılımların kurulu olması gerekmektedir:
+
+- **Python 3.11**  
+- **pip** (Python paket yöneticisi)
+
+> Not: Proje ve kullanılan kütüphaneler Python 3.11 üzerinde test edilmiştir.
+
+---
+
+## 🛠️ Kurulum
+
+Kurulum işlemleri `pip` ve `requirements.txt` dosyası üzerinden gerçekleştirilmektedir.
+
+### 1) Depoyu Klonlayın
+
 ```bash
-python3 --version
-python3 -m venv bb84
-source bb84/bin/activate
-pip install --upgrade pip
-pip install requipments.txt
+git clone https://github.com/tarkoncel/BB84-Protocol-Simulation.git
+cd BB84-Protocol-Simulation
+```
 
+---
+
+### 2) Sanal Ortam Oluşturun (Önerilir)
+
+#### Linux / macOS / BSD
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+#### Windows (PowerShell)
+
+```powershell
+python3 -m venv venv
+venv\Scripts\activate
+```
+
+---
+
+### 3) Gerekli Paketleri Kurun
+
+```bash
+pip install -r requirements.txt
+```
+
+---
 
 ## ▶️ Simülasyonu Çalıştırma
 
-Depoyu indirdikten sonra:
+Simülasyonu başlatmak için aşağıdaki komutu kullanın:
 
-``` bash
-python3 sim.py
+```bash
+python3.11 sim.py
 ```
 
-Simülasyon çıktısı şu bölümlerden oluşur:
+Simülasyon sonunda terminalde şu çıktılar üretilir:
 
--   **Ahmet'in sifted key'i**
--   **Mehmet'in sifted key'i**
--   **Sifted key uzunluğu**
--   **QBER değeri**
--   **Arda'nın saldırılı ve saldırısız durum sonuçları**
+- Ahmet ve Mehmet için sifted key dizileri  
+- Sifted key uzunluğu  
+- QBER değeri  
+- Saldırının tespit edilip edilmediği bilgisi
 
-------------------------------------------------------------------------
+---
 
-## ⚙️ Kullanılan Yöntemler ve Fonksiyonlar
+## 🧪 Simüle Edilen Senaryolar
 
-### `random_bits(n)`
+### 1) Saldırı Yok
 
-Rastgele bit dizisi oluşturur.
+- Gönderici ve alıcı rastgele bazlar kullanır.
+- Baz eşleşmesi olan bitler sifted key’i oluşturur.
+- QBER ≈ 0 olarak gözlemlenir.
 
-### `random_bases(n)`
+### 2) Araya Giren Saldırgan (Intercept–Resend)
 
-Gönderici ve alıcı için rastgele bazlar üretir.\
-- 0 → Z bazı\
-- 1 → X bazı
+- Arda qubitleri rastgele bazlarda ölçüp yeniden gönderir.
+- Ölçüm, kuantum durumları bozduğu için hata oranı artar.
+- QBER ≈ %30–%40 aralığına yükselir.
+- Bu durum saldırının sistem tarafından tespit edildiğini gösterir.
 
-### `measure_qubit(bit, basis, measurement_basis)`
+---
 
-Mehmet'in qubitleri nasıl ölçtüğünü simüle eder.
+## 📊 QBER Hesabı
 
-### `eavesdrop_qubit(bit, basis)`
+```text
+QBER = Hatalı Bit Sayısı / Toplam Sifted Bit Sayısı
+```
 
-Arda'nın qubitleri bozarak yeniden üretmesini simüle eder.
+- Saldırgan yokken → QBER ≈ 0  
+- Saldırgan varken → QBER ≥ %20
 
-### `bb84_protocol(n, attack=True/False)`
-
-Tam BB84 akışını simüle eder.
-
-------------------------------------------------------------------------
-
-## 📊 Beklenen Sonuçlar
-
-  -----------------------------------------------------------------------
-  Senaryo                 QBER              Açıklama
-  ----------------------- ----------------- -----------------------------
-  **Saldırı Yok**         ≈ 0.0             Sistem güvenli, bozunum yok
-
-  **Arda Saldırıyor**     ≈ 0.30--0.40      Saldırgan ölçümü bozuyor,
-                                            saldırı tespit ediliyor
-  -----------------------------------------------------------------------
-
-------------------------------------------------------------------------
+---
 
 ## 🧭 Teorik Temeller
 
-Simülasyon şu kuantum prensiplerine dayanır:
+Simülasyon aşağıdaki kuantum fiziği prensiplerine dayanmaktadır:
 
--   **Heisenberg Belirsizlik İlkesi:** Yanlış bazda ölçülen qubit
-    bozulur.\
--   **No-Cloning Teoremi:** Qubit birebir kopyalanamaz.\
--   **Kuantum Ölçümünün Bozuculuğu:** Her ölçüm qubitin durumunu
-    değiştirir.
+- **Heisenberg Belirsizlik İlkesi:** Yanlış bazda yapılan ölçüm qubitin durumunu bozar.  
+- **No-Cloning Teoremi:** Bir qubit birebir kopyalanamaz.  
+- **Kuantum Ölçümünün Bozuculuğu:** Ölçüm işlemi kuantum durumunu geri döndürülemez biçimde değiştirir.
 
-Bu nedenle Arda'nın saldırısı doğrudan sifted key istatistiklerine
-yansır.
+Bu nedenle saldırganın her müdahalesi ölçüm istatistiklerine yansır.
 
-------------------------------------------------------------------------
+---
 
 ## 📘 Kaynakça
 
--   Nielsen, M., & Chuang, I. *Quantum Computation and Quantum
-    Information*.\
--   Bernhardt, C. *Herkes İçin Kuantum Bilgisayım*. TÜBİTAK Popüler
-    Bilim Yayınları.\
--   IBM Qiskit Documentation: https://qiskit.org/
-
-------------------------------------------------------------------------
-
-## ✨ Katkı Sunmak
-
-Her türlü katkı, öneri veya geliştirme isteği için pull request
-gönderebilirsiniz.
+- Bennett, C. H., & Brassard, G. (1984). *Quantum cryptography: Public key distribution and coin tossing.*  
+- Nielsen, M. A., & Chuang, I. L. (2010). *Quantum Computation and Quantum Information.*  
+- IBM Qiskit Documentation: https://qiskit.org/
